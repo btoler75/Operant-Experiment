@@ -16,16 +16,18 @@ from tkinter import filedialog
 import pandas as pd
 
 class Phase:
+    """ Add documentation
+    """
     def __init__(self, duration, schedules):
         self.duration = duration
         self.schedules = schedules
 
-
-
-
-
 class DrawingCanvas(tk.Canvas):
+    """ Add documentation
+    """
     def __init__(self, master, width, height, x, y):
+        """ Add documentation
+        """
         super().__init__(master, width=width, height=height, bg='white')  # Set background color to white
         self.pack()
         self.place(x=x, y=y)
@@ -35,7 +37,6 @@ class DrawingCanvas(tk.Canvas):
 
         # Lower the border rectangle to be behind other drawings
         self.tag_lower(self.border_rectangle)
-
 
         # Drawing related attributes
         self.drawing = False
@@ -48,11 +49,15 @@ class DrawingCanvas(tk.Canvas):
         self.bind("<ButtonRelease-1>", self.stop_drawing)
 
     def start_drawing(self, event):
+        """ Add documentation
+        """
         self.drawing = True
         self.last_x = event.x
         self.last_y = event.y
 
     def draw(self, event):
+        """ Add documentation
+        """
         if self.drawing:
             self.create_line(self.last_x, self.last_y, event.x, event.y, fill="black")
             self.last_x = event.x
@@ -66,6 +71,8 @@ class DrawingCanvas(tk.Canvas):
 
 
 class OperantExperiment:
+    """ Add documentation
+    """
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Human Operant Research Program")
@@ -84,9 +91,12 @@ class OperantExperiment:
 
         # Add a border to the drawing canvas
         self.drawing_canvas.create_rectangle(0, 0, canvas_width, canvas_height, width=2)
+        
         # Add label to the drawing canvas
         self.drawing_canvas.create_text(canvas_width//2, canvas_height//2, text="Draw here if Bored", font=("Arial", 16))
 
+        # You'll want to demarcate the code in here people can manipulate as the primary IVs of the study so
+        # it's easy for them to find. 
         self.image_canvas = tk.Canvas(self.root, width=800, height=600)
         self.image_canvas.pack()
         self.image_obj = None
@@ -104,26 +114,29 @@ class OperantExperiment:
         self.fi_counters = [0, 0, 0, 0]
         self.vi_counters = [0, 0, 0, 0]
 
-
-
     def press_button(self, i):
+        """ Add documentation
+        """
         self.button_presses[i] += 1
         global_time = sum(phase.duration for phase in self.phases) - self.time_remaining
         self.button_press_timestamps[i].append(global_time)
         self.phase_button_presses[self.current_phase][i] += 1
-
         self.apply_reinforcement_schedule(i)
-
         self.points_label.config(text=f"Points: {self.points}")
     
     def reset_counters(self):
+        """ Add documentation
+        """
         self.button_presses = [0, 0, 0, 0]
         self.last_reinforcement_timestamps = [0 for _ in range(4)]
         self.vi_delays = [0, 0, 0, 0]
         self.fi_counters = [0, 0, 0, 0]
         self.vi_counters = [0, 0, 0, 0]
         self.drawing_canvas.clear()  # Clear the drawing canvas at the end of each phase
+        
     def save_phases(self):
+        """ Add documentation
+        """
         filename = filedialog.asksaveasfilename(defaultextension=".json", 
                                                 filetypes=[("JSON files", "*.json")],
                                                 title="Choose filename to save phases")
@@ -132,6 +145,8 @@ class OperantExperiment:
                 json.dump([phase.__dict__ for phase in self.phases], file)
 
     def load_phases(self):
+        """ Add documentation
+        """
         filename = filedialog.askopenfilename(defaultextension=".json", 
                                             filetypes=[("JSON files", "*.json")],
                                             title="Choose a file to load phases")
@@ -144,15 +159,16 @@ class OperantExperiment:
             else:
                 print(f"No file named {filename} found.")
 
-
-    
     def main(self):
+        """ Add documentation
+        """
         filename = input("Enter the filename of the phases data you want to load: ")
         self.load_phases(filename)
         self.start_menu()
 
-
     def start_menu(self):
+        """ Add documentation
+        """
         self.start_window = tk.Toplevel(self.root)
         self.start_window.title("Start Menu")
         self.start_window.geometry("300x250")
@@ -180,10 +196,9 @@ class OperantExperiment:
 
         self.start_window.mainloop()
 
-
-
-
     def apply_reinforcement_schedule(self, i):
+        """ Add documentation
+        """
         schedule_type, schedule_value = self.phases[self.current_phase].schedules[i]
 
         if len(self.button_press_timestamps[i]) == 0:
@@ -200,8 +215,7 @@ class OperantExperiment:
             if time_since_last_reinforcement >= schedule_value:
                 self.points += 1
                 self.play_feedback("positive")
-                self.last_reinforcement_timestamps[i] = global_time
-                    
+                self.last_reinforcement_timestamps[i] = global_time                
         elif schedule_type == "VR":
             if random.random() < 1 / schedule_value:
                 self.points += 1
@@ -212,16 +226,15 @@ class OperantExperiment:
                 self.play_feedback("positive")
                 self.last_reinforcement_timestamps[i] = global_time
                 self.vi_delays[i] = random.uniform(schedule_value * 0.5, schedule_value * 1.5)  # Update the delay
-
         elif schedule_type == "RC":  
             if self.button_presses[i] % schedule_value == 0:
                 self.points -= 1
                 self.play_feedback("aversive")
 
-
     def set_phases(self):
+        """ Add documentation
+        """
         num_phases = simpledialog.askinteger("Phases", "Enter the number of phases (1-6):", minvalue=1, maxvalue=6)
-
         for i in range(num_phases):
             phase_duration = simpledialog.askinteger(f"Phase {i+1}", f"Enter the duration of phase {i+1} in seconds:")
             phase_schedules = []
@@ -238,7 +251,6 @@ class OperantExperiment:
             phase = Phase(phase_duration, copy.deepcopy(phase_schedules))  # Create a deep copy of the schedules
             self.phases.append(phase)
 
-
     def start_experiment(self):
         self.start_window.destroy()
         self.prepare_experiment()
@@ -248,7 +260,6 @@ class OperantExperiment:
         self.time_remaining = total_duration
         self.schedules = self.phases[self.current_phase].schedules
         self.start_experiment_screen()
-
 
     def start_experiment_screen(self):
         self.points = 0
@@ -280,8 +291,9 @@ class OperantExperiment:
         self.root.after(3000, self.move_buttons_loop)
         self.root.mainloop()
 
-
     def update_timer(self):
+        """ Add documentation
+        """
         self.time_remaining -= 1
         self.timer_label.config(text=f"Time remaining: {self.time_remaining}s")
 
@@ -313,9 +325,9 @@ class OperantExperiment:
 
             self.root.after(1000, self.update_timer)
 
-
-
     def display_image(self, image_filename):
+        """ Add documentation
+        """
         try:
             image = tk.PhotoImage(file=image_filename)
             if self.image_obj is None:
@@ -326,9 +338,9 @@ class OperantExperiment:
         except tk.TclError:
             print(f"No image file named {image_filename} found. Continuing without an image.")
 
-
-
     def play_feedback(self, feedback_type):
+        """ Add documentation
+        """
         if feedback_type == "positive":
             winsound.PlaySound('positive.wav', winsound.SND_ASYNC)
             self.root.config(bg="green")
@@ -339,6 +351,8 @@ class OperantExperiment:
         self.root.after(200, lambda: self.root.config(bg="SystemButtonFace"))
 
     def move_buttons(self):
+        """ Add documentation
+        """
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         button_width = 15 * 10  # assuming 1 character width is 10 pixels
@@ -353,8 +367,9 @@ class OperantExperiment:
         self.move_buttons()
         self.root.after(3000, self.move_buttons_loop)
 
-
     def save_data(self):
+        """ Add documentation
+        """
         with open('experiment_data.csv', 'w', newline='') as csvfile:
             fieldnames = ['button', 'button_press_timestamps']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -364,10 +379,11 @@ class OperantExperiment:
                 writer.writerow({
                     'button': i + 1,
                     'button_press_timestamps': self.button_press_timestamps[i],
-                    
                 })
 
     def display_results_table(self):
+        """ Add documentation
+        """
         buttons_to_display_str = simpledialog.askstring("Buttons to Display", "Enter the button numbers to display separated by commas (e.g., 1,2,3):")
         buttons_to_display = [int(button.strip()) for button in buttons_to_display_str.split(',') if button.strip().isdigit()]
 
@@ -410,10 +426,9 @@ class OperantExperiment:
         # Display the table
         print(df)
 
-
-
-
     def display_results(self):
+        """ Add documentation
+        """
         self.save_data()
         buttons_to_display_str = simpledialog.askstring("Buttons to Display", "Enter the button numbers to display separated by commas (e.g., 1,2,3):")
         buttons_to_display = [int(button.strip()) for button in buttons_to_display_str.split(',') if button.strip().isdigit()]
@@ -487,12 +502,6 @@ class OperantExperiment:
 
         # Display results table
         self.display_results_table()
-
-
-
-
-
-
 
 if __name__ == "__main__":
     experiment = OperantExperiment()
